@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A premium and responsive Product Management Dashboard connected to a FastAPI backend.">
+    <title>StockFlow - Product Management Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <i class="fa-solid fa-boxes-stacked logo-icon"></i>
+                <h1>StockFlow</h1>
+            </div>
+            <div class="user-profile">
+                <span class="status-indicator online"></span>
+                <span>System Admin</span>
+            </div>
+        </header>
+
+        <!-- Dashboard Stats Grid -->
+        <section class="stats-grid" aria-label="Inventory Metrics">
+            <div class="stat-card" id="stat-total-products">
+                <div class="stat-icon-wrapper blue">
+                    <i class="fa-solid fa-box"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-label">Total Products</span>
+                    <span class="stat-value" id="val-total-products">0</span>
+                </div>
+            </div>
+            
+            <div class="stat-card" id="stat-total-value">
+                <div class="stat-icon-wrapper green">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-label">Total Value</span>
+                    <span class="stat-value" id="val-total-value">$0.00</span>
+                </div>
+            </div>
+
+            <div class="stat-card" id="stat-out-of-stock">
+                <div class="stat-icon-wrapper red">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-label">Out of Stock</span>
+                    <span class="stat-value" id="val-out-of-stock">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Layout -->
+        <main class="main-content">
+            <!-- Left Panel: Form -->
+            <section class="panel form-panel" aria-labelledby="form-title">
+                <div class="panel-header">
+                    <h2 id="form-title">
+                        <i class="fa-solid fa-circle-plus header-icon" id="form-icon"></i>
+                        <span id="form-action-text">Add New Product</span>
+                    </h2>
+                </div>
+                
+                <form id="product-form" onsubmit="handleFormSubmit(event)">
+                    <!-- Hidden input to detect edit mode -->
+                    <input type="hidden" id="edit-mode-active" value="false">
+                    
+                    <div class="form-group">
+                        <label for="product-id">Product ID</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-hashtag input-icon"></i>
+                            <input type="number" id="product-id" placeholder="e.g. 1" required min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-tag input-icon"></i>
+                            <input type="text" id="product-name" placeholder="e.g. ThinkPad X1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-description">Description</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-align-left input-icon"></i>
+                            <input type="text" id="product-description" placeholder="e.g. Ultra-thin premium laptop" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product-price">Price ($)</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-dollar-sign input-icon"></i>
+                                <input type="number" id="product-price" placeholder="0.00" step="0.01" required min="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-quantity">Quantity</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-cubes input-icon"></i>
+                                <input type="number" id="product-quantity" placeholder="0" required min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="btn-submit" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Product
+                        </button>
+                        <button type="button" id="btn-cancel-edit" class="btn btn-secondary hidden" onclick="cancelEditMode()">
+                            Cancel Edit
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Right Panel: Table of Products -->
+            <section class="panel data-panel" aria-labelledby="data-title">
+                <div class="panel-header table-actions">
+                    <h2 id="data-title"><i class="fa-solid fa-list header-icon"></i> Inventory Items</h2>
+                    
+                    <div class="search-bar">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Search products..." oninput="handleSearch()">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="products-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%">ID</th>
+                                <th style="width: 45%">Product Details</th>
+                                <th style="width: 18%">Price</th>
+                                <th style="width: 12%">Stock</th>
+                                <th style="width: 15%" class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body">
+                            <!-- Dynamically populated rows -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Empty state -->
+                    <div id="empty-state" class="empty-state hidden">
+                        <i class="fa-solid fa-box-open empty-icon"></i>
+                        <p id="empty-state-text">No products inside stock</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>StockFlow Management System &copy; 2026. Connected securely to FastAPI Backend.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <i id="toast-icon" class="fa-solid"></i>
+        <span id="toast-message">Action completed successfully</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
