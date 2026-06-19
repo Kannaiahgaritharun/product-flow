@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 load_dotenv()  # Load variables from .env file
 
-db_url = os.getenv("DATABASE_URL")
+db_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL")
 engine = create_engine(db_url)
 session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
