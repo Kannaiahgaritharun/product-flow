@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "";
 let allProducts = []; // Keep a copy of all loaded products for client-side search/filtering
 
 // Show visual toast notifications
