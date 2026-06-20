@@ -1,6 +1,6 @@
 # StockFlow - Product Management System
 ### 6. Open the app
-Visit 👉 **http://127.0.0.1:8000](https://product-flow-enxb351fg-tharun17.vercel.app/**
+Visit 👉 **https://product-flow-enxb351fg-tharun17.vercel.app/**
 
 
 A full-stack **Product Inventory Management** web app built with **FastAPI** backend and a modern HTML/CSS/JS frontend connected to a **PostgreSQL** database.
